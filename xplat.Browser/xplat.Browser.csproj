@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-browser</TargetFramework>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xplat\xplat.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<IlcArg Include="--codegenopt:JitCheckLlvmIR=1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.DotNet.ILCompiler.LLVM" Version="9.0.0-*" />
+		<PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler.LLVM" Version="9.0.0-*" />
+	</ItemGroup>
+    
+	<PropertyGroup>
+		<TargetPlatformSupported>true</TargetPlatformSupported>
+		<TargetPlatformVersion>8.0</TargetPlatformVersion>
+		<TargetPlatformVersionSupported>true</TargetPlatformVersionSupported>
+		<PublishTrimmed>true</PublishTrimmed>
+		<UseAppHost>false</UseAppHost>
+		<EmccInitialHeapSize>32MB</EmccInitialHeapSize>
+		<DotNetJsApi>true</DotNetJsApi>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <DirectPInvoke Include="libHarfBuzzSharp" />
+    <DirectPInvoke Include="libSkiaSharp" />
+	  <DirectPInvoke Include="System.Runtime.InteropServices.JavaScript" />
+    <WasmExtraFilesToDeploy Include="wwwroot\*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkVersion)' != '' and '$(ShouldIncludeNativeSkiaSharp)' == 'True'">
+    <!-- net7.0 -->
+    <NativeLibrary Include="$(SkiaSharpStaticLibraryPath)/3.1.12/mt/*.a" Condition="!$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' == 'True'" />
+    <NativeLibrary Include="$(SkiaSharpStaticLibraryPath)/3.1.12/st/*.a" Condition="!$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' != 'True'" />
+    <!-- net8.0 -->
+    <NativeLibrary Include="$(SkiaSharpStaticLibraryPath)/3.1.34/mt/*.a" Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' == 'True'" />
+    <NativeLibrary Include="$(SkiaSharpStaticLibraryPath)/3.1.34/st/*.a" Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' != 'True'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkVersion)' != '' and '$(ShouldIncludeNativeHarfBuzzSharp)' == 'True'">
+    <!-- net7.0 -->
+    <NativeLibrary Include="$(HarfBuzzSharpStaticLibraryPath)/3.1.12/st/*.a" Condition="!$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' != 'True'" />
+    <NativeLibrary Include="$(HarfBuzzSharpStaticLibraryPath)/3.1.12/mt/*.a" Condition="!$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' == 'True'" />
+    <!-- net8.0 -->
+    <NativeLibrary Include="$(HarfBuzzSharpStaticLibraryPath)/3.1.34/st/*.a" Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' != 'True'" />
+    <NativeLibrary Include="$(HarfBuzzSharpStaticLibraryPath)/3.1.34/mt/*.a" Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), '8.0')) and '$(WasmEnableThreads)' == 'True'" />
+  </ItemGroup>
+
+</Project>
